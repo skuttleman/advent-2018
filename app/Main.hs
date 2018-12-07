@@ -25,10 +25,7 @@ runner ( day, step ) =
       & drop (day - 1)
       & head
   in
-    if step == 0 then
-      run f1 1
-    else
-      run f2 2
+    run (if step == 0 then f1 else f2) (day + 1)
 
 main :: IO ()
 main = fmap dayStep getArgs >>= runner >>= putStrLn
