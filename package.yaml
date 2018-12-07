@@ -1,14 +1,13 @@
 name:                advent2018
 version:             0.1.0.0
-github:              "githubuser/advent2018"
+github:              "skuttleman/advent-2018"
 license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2018 Author name here"
+author:              "skuttleman@gmail.com"
+maintainer:          "skuttleman@gmail.com"
+copyright:           "2018 skuttleman@gmail.com"
 
 extra-source-files:
 - README.md
-- ChangeLog.md
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
@@ -17,7 +16,7 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/githubuser/advent2018#readme>
+description:         Please see the README on GitHub at <https://github.com/skuttleman/advent-2018#readme>
 
 dependencies:
 - base >= 4.7 && < 5
