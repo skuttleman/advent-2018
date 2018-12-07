@@ -4,6 +4,7 @@ module Day2
 import Data.Function
 import qualified Data.Map.Strict as Map
 import qualified Data.Set as Set
+import qualified Data.Similar as Sim
 
 freq :: Map.Map Char Int -> String -> Map.Map Char Int
 freq map [] = map
@@ -34,6 +35,24 @@ foldTogether ( twos, threes ) ( hasTwo, hasThree ) =
 multiply :: ( Int, Int ) -> Int
 multiply ( a, b ) = a * b
 
+matchingLetters :: String -> String -> String -> String
+matchingLetters matches [] _ = matches
+matchingLetters matches _ [] = matches
+matchingLetters matches (l1:s1) (l2:s2) =
+  matchingLetters (if l1 == l2 then matches ++ [l1] else matches) s1 s2
+
+findSimilar :: Set.Set Sim.Similar -> [Sim.Similar] -> String
+findSimilar set [] = error "No similar match found"
+findSimilar set (s:more) =
+  case Set.lookupLE s set of
+    Just val ->
+      if compare val s == EQ then
+        matchingLetters "" (Sim.getString val) (Sim.getString s)
+      else
+        findSimilar (Set.insert s set) more
+    Nothing -> 
+      findSimilar (Set.insert s set) more
+
 step1 :: [String] -> String
 step1 lines =
   lines
@@ -43,4 +62,7 @@ step1 lines =
     & show
 
 step2 :: [String] -> String
-step2 _ = "tbd"
+step2 lines =
+  lines
+    & fmap Sim.fromString
+    & findSimilar Set.empty
