@@ -1,6 +1,7 @@
 module Main where
 import Data.Function
-import Day1 as Day1
+import Day1
+import Day2
 import System.Environment
 
 run :: ([String] -> String) -> Int -> IO String
@@ -12,7 +13,8 @@ run f day = day
   & fmap (f . lines)
 
 daySteps :: [( [String] -> String, [String] -> String )]
-daySteps = [( Day1.step1, Day1.step2 )]
+daySteps = [( Day1.step1, Day1.step2 ),
+            ( Day2.step1, Day2.step2 )]
 
 dayStep :: [String] -> ( Int, Int )
 dayStep (day:step:_) =
@@ -22,7 +24,7 @@ runner :: ( Int, Int ) -> IO String
 runner ( day, step ) = 
   let
     ( f1, f2 ) = daySteps
-      & drop (day - 1)
+      & drop day
       & head
   in
     run (if step == 0 then f1 else f2) (day + 1)
