@@ -2,6 +2,7 @@ module Day1
     ( step1, step2
     ) where
 import Data.Function
+import qualified Data.Set as Set
 
 toInt :: String -> Int
 toInt s =
@@ -9,6 +10,16 @@ toInt s =
     read (drop 1 s)
   else
     read s
+
+findRepeated :: Set.Set Int -> Int -> [Int] -> Int
+findRepeated set freq (val:more) =
+  let
+    next = freq + val
+  in
+    if (Set.member next set) then
+      next
+    else
+      findRepeated (Set.insert next set) next more
 
 step1 :: [String] -> String
 step1 lines =
@@ -18,4 +29,9 @@ step1 lines =
     & show
 
 step2 :: [String] -> String
-step2 _ = "tbd"
+step2 lines =
+  lines
+    & fmap toInt
+    & cycle
+    & findRepeated (Set.singleton 0) 0
+    & show
