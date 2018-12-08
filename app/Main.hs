@@ -2,6 +2,7 @@ module Main where
 import Data.Function
 import Day1
 import Day2
+import Day3
 import System.Environment
 
 run :: ([String] -> String) -> Int -> IO String
@@ -14,7 +15,8 @@ run f day = day
 
 daySteps :: [( [String] -> String, [String] -> String )]
 daySteps = [( Day1.step1, Day1.step2 ),
-            ( Day2.step1, Day2.step2 )]
+            ( Day2.step1, Day2.step2 ),
+            ( Day3.step1, Day3.step2 )]
 
 dayStep :: [String] -> ( Int, Int )
 dayStep (day:step:_) =
