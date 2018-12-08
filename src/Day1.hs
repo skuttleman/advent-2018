@@ -4,12 +4,31 @@ module Day1
 import Data.Function
 import qualified Data.Set as Set
 
+
+step1 :: [String] -> String
+step1 lines =
+  lines
+    & fmap toInt
+    & foldl (+) 0
+    & show
+
+
+step2 :: [String] -> String
+step2 lines =
+  lines
+    & fmap toInt
+    & cycle
+    & findRepeated (Set.singleton 0) 0
+    & show
+
+
 toInt :: String -> Int
 toInt s =
   if head s == '+' then
     read (drop 1 s)
   else
     read s
+
 
 findRepeated :: Set.Set Int -> Int -> [Int] -> Int
 findRepeated set freq (val:more) =
@@ -20,18 +39,3 @@ findRepeated set freq (val:more) =
       next
     else
       findRepeated (Set.insert next set) next more
-
-step1 :: [String] -> String
-step1 lines =
-  lines
-    & fmap toInt
-    & foldl (+) 0
-    & show
-
-step2 :: [String] -> String
-step2 lines =
-  lines
-    & fmap toInt
-    & cycle
-    & findRepeated (Set.singleton 0) 0
-    & show

@@ -1,40 +1,63 @@
-module Day3
-    ( step1, step2
-    ) where
+module Day3 (step1, step2) where
 import Data.Function
+import qualified Data.Map as Map
 import qualified Data.Set as Set
 import Text.Regex.TDFA
 
-matchInfo :: String -> ( Int, Int, Int, Int, Int )
-matchInfo s =
-  let
-    (_, _, _, nums) = (s =~ "#([0-9]+) @ ([0-9]+),([0-9]+): ([0-9]+)x([0-9]+)") :: ( String, String, String, [String] )
-  in
-    nums
-      & fmap read
-      & (\(id:x:y:w:h:_) -> ( id, x, y, w, h ))
 
-expand :: ( Int, Int, Int, Int, Int ) -> ( Int, [( Int, Int )] )
-expand (id, x, y, w, h) =
-  ( id, [( x', y' ) | x' <- [x..(x + w - 1)], y' <- [y..(y + h - 1)]] )
+data Position = Position Int Int deriving (Eq, Ord)
+data Sheet = Sheet Int [Position]
 
-countOverlaps :: Int -> Set.Set ( Int, Int ) -> Set.Set ( Int, Int ) -> [( Int, Int )] -> Int
-countOverlaps counter set1 set2 [] = counter
-countOverlaps counter set1 set2 (position:more) =
-  if Set.member position set1 && Set.member position set2 then
-    countOverlaps counter set1 set2 more
-  else if Set.member position set1 then
-    countOverlaps (counter + 1) set1 (Set.insert position set2) more
-  else
-    countOverlaps counter (Set.insert position set1) set2 more
 
 step1 :: [String] -> String
 step1 lines =
   lines
-    & fmap (snd . expand . matchInfo)
+    & fmap (positions . matchInfo)
     & concat
-    & countOverlaps 0 Set.empty Set.empty
+    & countOverlaps Set.empty Set.empty
     & show
 
+
 step2 :: [String] -> String
-step2 _ = "tbd"
+step2 lines =
+  lines
+    & fmap matchInfo
+    & foldl (findOverlapping False) ( Map.empty, Set.empty )
+    & snd
+    & Set.toList
+    & head
+    & show
+
+
+matchInfo :: String -> Sheet
+matchInfo s =
+  s =~ "#([0-9]+) @ ([0-9]+),([0-9]+): ([0-9]+)x([0-9]+)"
+    & matches
+    & fmap read
+    & (\(id:x:y:w:h:_) -> Sheet id [Position x' y' | x' <- [x..(x + w - 1)], y' <- [y..(y + h - 1)]])
+
+
+countOverlaps :: Set.Set Position -> Set.Set Position -> [Position] -> Int
+countOverlaps set1 set2 [] = Set.size set2
+countOverlaps set1 set2 (position:more) =
+  if Set.member position set1 then
+    countOverlaps set1 (Set.insert position set2) more
+  else
+    countOverlaps (Set.insert position set1) set2 more
+
+
+findOverlapping :: Bool -> ( Map.Map Position Int, Set.Set Int ) -> Sheet -> ( Map.Map Position Int, Set.Set Int )
+findOverlapping True ( map, set ) (Sheet id []) = ( map, set )
+findOverlapping False ( map, set ) (Sheet id []) = ( map, Set.insert id set )
+findOverlapping overlaps ( map, set ) (Sheet id (position:positions)) =
+  case Map.lookup position map of
+    Just conflict -> findOverlapping True ( map, Set.delete conflict set ) (Sheet id positions)
+    Nothing -> findOverlapping overlaps ( Map.insert position id map, set ) (Sheet id positions)
+
+
+positions :: Sheet -> [Position]
+positions (Sheet _ positions) = positions
+
+
+matches :: ( String, String, String, [String] ) -> [String]
+matches ( _, _, _, matches ) = matches
