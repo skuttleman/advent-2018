@@ -13,22 +13,26 @@ data GuardEvent = BeginShift Int DateTime | FallAsleep DateTime | WakeUp DateTim
 
 
 step1 :: [String] -> String
-step1 lines =
+step1 = step' mostMinutesSlept
+
+
+step2 :: [String] -> String
+step2 = step' largestSleepingMinute
+
+
+step' :: (( Int, Map.Map Int Int ) -> ( Int, Map.Map Int Int ) -> Ordering) -> [String] -> String
+step' sorter lines =
   lines
     & sort
     & fmap toGuardEvent
     & foldPairsL trackSleep ( Nothing, Map.empty )
     & snd
     & Map.toList
-    & sortBy mostMinutesSlept
+    & sortBy sorter
     & head
     & map2of2 (head . sortBy mostSleptMinute . Map.toList)
     & idByMinute
     & show
-
-
-step2 :: [String] -> String
-step2 _ = "tbd"
 
 
 toGuardEvent :: String -> GuardEvent
@@ -126,6 +130,11 @@ mostSleptMinute :: ( Int, Int ) -> ( Int, Int ) -> Ordering
 mostSleptMinute ( _, a ) ( _, b ) = compare b a
 
 
+largestSleepingMinute :: ( Int, Map.Map Int Int ) -> ( Int, Map.Map Int Int ) -> Ordering
+largestSleepingMinute ( _, a ) ( _, b ) =
+  compare (largestMinute b) (largestMinute a)
+
+
 idByMinute :: ( Int, ( Int, Int ) ) -> Int
 idByMinute ( id, ( min, _ ) ) = id * min
 
@@ -133,3 +142,12 @@ idByMinute ( id, ( min, _ ) ) = id * min
 addAllMinutes :: Map.Map Int Int -> Int
 addAllMinutes =
   foldl (+) 0 . fmap snd . Map.toList
+
+
+largestMinute :: Map.Map Int Int -> Int
+largestMinute m =
+  m
+    & Map.toList
+    & sortBy mostSleptMinute
+    & head
+    & snd
