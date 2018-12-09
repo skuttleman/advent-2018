@@ -2,7 +2,7 @@ module Day3 (step1, step2) where
 import Data.Function
 import qualified Data.Map as Map
 import qualified Data.Set as Set
-import Text.Regex.TDFA
+import Utils.Regex
 
 
 data Position = Position Int Int deriving (Eq, Ord)
@@ -30,9 +30,8 @@ step2 lines =
 
 
 matchInfo :: String -> Sheet
-matchInfo s =
-  s =~ "#([0-9]+) @ ([0-9]+),([0-9]+): ([0-9]+)x([0-9]+)"
-    & matches
+matchInfo str =
+  str #= "#([0-9]+) @ ([0-9]+),([0-9]+): ([0-9]+)x([0-9]+)"
     & fmap read
     & (\(id:x:y:w:h:_) -> Sheet id [Position x' y' | x' <- [x..(x + w - 1)], y' <- [y..(y + h - 1)]])
 
@@ -57,7 +56,3 @@ findOverlapping overlaps ( map, set ) (Sheet id (position:positions)) =
 
 positions :: Sheet -> [Position]
 positions (Sheet _ positions) = positions
-
-
-matches :: ( String, String, String, [String] ) -> [String]
-matches ( _, _, _, matches ) = matches
