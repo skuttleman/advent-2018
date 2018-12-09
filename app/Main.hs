@@ -1,9 +1,10 @@
 module Main where
 import Data.Function
-import Day1
-import Day2
-import Day3
-import Day4
+import qualified Day1
+import qualified Day2
+import qualified Day3
+import qualified Day4
+import qualified Day5
 import System.Environment
 
 run :: ([String] -> String) -> Int -> IO String
@@ -18,7 +19,8 @@ daySteps :: [( [String] -> String, [String] -> String )]
 daySteps = [( Day1.step1, Day1.step2 ),
             ( Day2.step1, Day2.step2 ),
             ( Day3.step1, Day3.step2 ),
-            ( Day4.step1, Day4.step2 )]
+            ( Day4.step1, Day4.step2 ),
+            ( Day5.step1, Day5.step2 )]
 
 dayStep :: [String] -> ( Int, Int )
 dayStep (day:step:_) =
