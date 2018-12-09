@@ -18,3 +18,4 @@ pairUpL f ( Nothing, a ) b = ( Just b, a )
 pairUpR :: (b -> b -> a -> a) -> b -> ( Maybe b, a ) -> ( Maybe b, a )
 pairUpR f b ( Just b', a ) = ( Just b, f b' b a )
 pairUpR f b ( Nothing, a ) = ( Just b, a )
+
