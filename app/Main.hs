@@ -6,6 +6,7 @@ import qualified Day3
 import qualified Day4
 import qualified Day5
 import qualified Day6
+import qualified Day7
 import System.Environment
 
 run :: ([String] -> String) -> Int -> IO String
@@ -22,7 +23,8 @@ daySteps = [( Day1.step1, Day1.step2 ),
             ( Day3.step1, Day3.step2 ),
             ( Day4.step1, Day4.step2 ),
             ( Day5.step1, Day5.step2 ),
-            ( Day6.step1, Day6.step2 )]
+            ( Day6.step1, Day6.step2 ),
+            ( Day7.step1, Day7.step2 )]
 
 dayStep :: [String] -> ( Int, Int )
 dayStep (day:step:_) =
