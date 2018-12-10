@@ -29,7 +29,13 @@ step1 lines =
 
 
 step2 :: [String] -> String
-step2 _ = "tbd"
+step2 lines =
+  lines
+    & fmap toVector
+    & foldr withSize ( Set.empty, Nothing, Nothing )
+    & withDistances
+    & length
+    & show
 
 
 toVector :: String -> Vector
@@ -61,10 +67,28 @@ withGrid ( positions, Just topLeft, Just size) =
         & Set.toList
         & fmap (+ (vector2D (-1) (-1)))
   in
-    [( vector2D x y, position ) | x <- [0..width], y <- [0..height], position <- pos]
+    [( vector2D x y, position ) | y <- [0..height], x <- [0..width], position <- pos]
       & foldl markClosest Map.empty
       & removeInfinite size
       & removeMissing
+
+
+withDistances :: ( Set.Set Vector, Maybe Vector, Maybe Vector ) -> [Vector]
+withDistances ( positions, Just topLeft, Just size ) =
+  let
+    ( width, height ) = vector2DToTuple size
+    ( x', y' ) = vector2DToTuple topLeft
+  in
+    [vector2D x y | y <- [y' - 1..y' + height + 1], x <- [x' - 1..x' + width + 1]]
+      & filter (minDistance (Set.toList positions) (< 10000))
+
+
+minDistance :: [Vector] -> (Int -> Bool) -> Vector -> Bool
+minDistance positions pred position =
+  positions
+    & fmap (distance position)
+    & foldl (+) 0
+    & pred
 
 
 markClosest :: Map.Map Vector Cell -> ( Vector, Vector ) -> Map.Map Vector Cell
