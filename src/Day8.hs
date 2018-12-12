@@ -11,13 +11,20 @@ step1 lines =
     & fmap read
     & buildTree
     & snd
-    & fmap (foldr (+) 0)
-    & foldr (+) 0
+    & foldl (foldl (+)) 0
     & show
 
 
 step2 :: [String] -> String
-step2 _ = "tbd"
+step2 lines =
+  lines
+    & head
+    & words
+    & fmap read
+    & buildTree
+    & snd
+    & NTree.foldUp totalRoot 0
+    & show
 
 
 buildTree :: [Int] -> ( [Int], NTree.NTree [Int] )
@@ -36,3 +43,20 @@ buildChildren count ( ints, children ) =
   in
     buildChildren (count - 1) ( next, child:children )
 
+
+totalRoot :: [Int] -> [NTree.NTree [Int]] -> Int -> Int
+totalRoot metaData [] result = foldl (+) result metaData
+totalRoot metaData children result =
+  let
+    len = length children
+  in
+  metaData
+    & fmap (\i -> nthOr (len - i) NTree.empty children)
+    & foldl (NTree.foldUp totalRoot) result
+
+
+nthOr :: Int -> a -> [a] -> a
+nthOr 0 _ (head:_) = head
+nthOr n value children
+  | n > 0 = nthOr 0 value (drop n children)
+nthOr _ value _ = value

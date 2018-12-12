@@ -1,5 +1,5 @@
 module Data.NTree
-  (NTree(), empty, singleton, children, insert, parent, values)
+  (NTree(), empty, singleton, children, insert, parent, values, foldUp)
   where
 
 
@@ -39,11 +39,18 @@ parent :: [NTree a] -> a -> NTree a
 parent children value = NTree value children
 
 
+foldUp :: (a -> [NTree a] -> b -> b) -> b -> NTree a -> b
+foldUp _ b Empty = b
+foldUp f b (NTree val children) = f val children b
+
+
 instance Functor NTree where
   fmap f Empty = Empty
   fmap f (NTree val children) = NTree (f val) (map (fmap f) children)
 
+
 instance Foldable NTree where
   foldr f dflt Empty = dflt
   foldr f dflt (NTree val []) = f val dflt
-  foldr f dflt (NTree val (child:more)) = foldr f (foldr f dflt child) (NTree val more)
+  foldr f dflt (NTree val children) =
+    foldr (\child result -> foldr f result child) (f val dflt) children
