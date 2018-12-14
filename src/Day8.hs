@@ -1,6 +1,7 @@
 module Day8 (step1, step2) where
 import Data.Function
 import qualified Data.NTree as NTree
+import Utils.Lists
 
 
 step1 :: [String] -> String
@@ -53,10 +54,3 @@ totalRoot metaData children result =
   metaData
     & fmap (\i -> nthOr (len - i) NTree.empty children)
     & foldl (NTree.foldUp totalRoot) result
-
-
-nthOr :: Int -> a -> [a] -> a
-nthOr 0 _ (head:_) = head
-nthOr n value children
-  | n > 0 = nthOr 0 value (drop n children)
-nthOr _ value _ = value

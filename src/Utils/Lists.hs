@@ -1,4 +1,4 @@
-module Utils.Lists (foldPairsL, foldPairsR, keep, safeHead) where
+module Utils.Lists (foldPairsL, foldPairsR, keep, nthOr, safeHead) where
 
 
 foldPairsL :: (a -> b -> b -> a) -> a -> [b] -> a
@@ -37,3 +37,10 @@ folder f a items =
       items
     Just b ->
       b:items
+
+
+nthOr :: Int -> a -> [a] -> a
+nthOr 0 _ (head:_) = head
+nthOr n value children
+  | n > 0 = nthOr 0 value (drop n children)
+nthOr _ value _ = value
