@@ -1,21 +1,22 @@
 module Day9 (step1, step2) where
 import Data.Function
 import Data.List
+import qualified Data.MarbleBoard as MB
 import qualified Data.Map as Map
 import Utils.Lists
-import Utils.Fns
 import Utils.Maps
 import Utils.Regex
 
 
-data Marbles = Marbles [Int] Int Int Int deriving (Eq, Show)
+data Marbles = Marbles MB.MarbleBoard Int Int Int deriving (Eq, Show)
 data Players = Players Int (Map.Map Int Int) Int deriving (Eq, Show)
 data Game = Game Marbles Players deriving (Eq)
 
 instance Show Game where
   show (Game (Marbles board index _ _) (Players _ scores _)) =
-    (show' board index "") ++ " :: " ++ (show scores)
-    -- show scores
+    -- show board
+    show' (MB.toList board) index ""
+    -- (show' (MB.toList board) index "") ++ " :: " ++ (show scores)
 
 
 show' :: [Int] -> Int -> String -> String
@@ -50,8 +51,8 @@ parseInput s =
 initGame :: [Int] -> Game
 initGame (players:marbles:_) =
   Game
-    & call (Marbles [0] 0 0 marbles)
-    & call (Players 0 Map.empty players)
+    (Marbles (MB.fromList [0]) 0 0 marbles)
+    (Players 0 Map.empty players)
 
 
 play :: Game -> Game
@@ -59,8 +60,8 @@ play game@(Game marbles players)
   | isOver game = game
   | otherwise =
     Game
-      & call (nextMarbles marbles)
-      & call (nextPlayers marbles players)
+      (nextMarbles marbles)
+      (nextPlayers marbles players)
       & play
 
 
@@ -77,13 +78,12 @@ nextMarbles :: Marbles -> Marbles
 nextMarbles (Marbles board index lastPlayed total) =
   let
     marble = lastPlayed + 1
-    index' = (nextIndex board marble index)
   in
     Marbles
-      & call (nextBoard marble index' board)
-      & call index'
-      & call marble
-      & call total
+      (nextBoard marble board)
+      (nextIndex board marble index)
+      marble
+      total
 
 
 nextPlayers :: Marbles -> Players -> Players
@@ -92,9 +92,9 @@ nextPlayers marbles (Players lastPlayer scores total) =
     player = nextPlayer lastPlayer total
   in
     Players
-      & call player
-      & call (nextScore marbles player scores)
-      & call total
+      player
+      (nextScore marbles player scores)
+      total
 
 
 nextPlayer :: Int -> Int -> Int
@@ -107,31 +107,39 @@ nextScore :: Marbles -> Int -> Map.Map Int Int -> Map.Map Int Int
 nextScore (Marbles board index lastPlayed total) player scores =
   let
     played = lastPlayed + 1
-    dropped = nthOr (nextIndex board played index) 0 board
   in
     if scorable played then
-      updateWith 0 (+ (dropped + played)) player scores
+      updateWith 0 (+ ((MB.getAt (nextIndex board played index) board) + played)) player scores
     else
       scores
 
 
-nextBoard :: Int -> Int -> [Int] -> [Int]
-nextBoard marble index board
+nextBoard :: Int -> MB.MarbleBoard -> MB.MarbleBoard
+nextBoard marble board
   | scorable marble =
-    (take index board) ++ (drop (index + 1) board)
+    MB.removeAt (marble - 5) board
+  | scorable (marble - 1) =
+    let
+      after = MB.next (marble - 5) board
+    in
+      MB.insertAfter after marble board
   | otherwise =
-    (take index board) ++ (marble:drop index board)
+    let
+      after = MB.next (marble - 1) board
+    in
+      MB.insertAfter after marble board
 
 
-nextIndex :: [Int] -> Int -> Int -> Int
+nextIndex :: MB.MarbleBoard -> Int -> Int -> Int
 nextIndex board marble index
-  | scorable marble = cycleIndex (index - 7) (length board)
-  | otherwise = cycleIndex (index + 2) (length board)
+  | scorable marble = cycleIndex (index - 7) (MB.size board)
+  | otherwise = cycleIndex (index + 2) (MB.size board)
 
 
 isOver :: Game -> Bool
 isOver (Game (Marbles _ _ lastPlayed total) _) =
   lastPlayed == total
+  -- lastPlayed == 25
 
 
 scorable :: Int -> Bool
