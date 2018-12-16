@@ -6,12 +6,7 @@ import Utils.Lists
 import Utils.Tuples
 
 
-data MarbleBoard = MarbleBoard Int (Map.Map Int Int) deriving (Eq)
-
-
-instance Show MarbleBoard where
-  show = show . toList
-  -- show (MarbleBoard _ m) = show m
+data MarbleBoard = MarbleBoard Int (Map.Map Int Int) deriving (Eq, Show)
 
 
 fromList :: [Int] -> MarbleBoard
@@ -20,11 +15,10 @@ fromList items@(item:_) = MarbleBoard (length items) (fromList' item items Map.e
 
 
 getAt :: Int -> MarbleBoard -> Int
-getAt index (MarbleBoard len items)
-  | index >= 0 && index < len =
-      toList' len items Nothing
-      & drop index
-      & head
+getAt marble (MarbleBoard _ items) =
+  case Map.lookup marble items of
+    Just result -> result
+    Nothing -> 0
 
 
 insertAfter :: Int -> Int -> MarbleBoard -> MarbleBoard
