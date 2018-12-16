@@ -22,18 +22,21 @@ show' (marble:marbles) index shown =
 
 
 step1 :: [String] -> String
-step1 lines =
+step1 = step' playToWin
+
+
+step2 :: [String] -> String
+step2 = step' (playToWin . updateMarbles (* 100))
+
+
+step' :: (Show a) => (Game -> a) -> [String] -> String
+step' f lines =
   lines
     & head
     & parseInput
     & initGame
-    & play
-    & highScore
+    & f
     & show
-
-
-step2 :: [String] -> String
-step2 _ = "tbs"
 
 
 parseInput :: String -> [Int]
