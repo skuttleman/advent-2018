@@ -28,7 +28,15 @@ instance Show Grid where
 
 
 step1 :: [String] -> String
-step1 lines =
+step1 = show . Grid . (\( tvs, amt ) -> fmap (move amt) tvs) . step'
+
+
+step2 :: [String] -> String
+step2 = show . fst . vector2DToTuple . snd . step'
+
+
+step' :: [String] -> ( [TimeVector], Vector )
+step' lines =
   let
     tvs = fmap toTimeVector lines
     amt = floor (2 ** 20)
@@ -39,13 +47,7 @@ step1 lines =
       & sortBy (\( _, a ) ( _, b ) -> compare a b)
       & head
       & fst
-      & (\amt -> fmap (move amt) tvs)
-      & Grid
-      & show
-
-
-step2 :: [String] -> String
-step2 _ = "tbd"
+      & (,) tvs
 
 
 findClosest :: TimeVector -> Vector -> Vector -> Vector
