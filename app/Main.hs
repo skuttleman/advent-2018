@@ -11,7 +11,9 @@ import qualified Day8
 import qualified Day9
 import qualified Day10
 import qualified Day11
+import qualified Day12
 import System.Environment
+
 
 run :: ([String] -> String) -> Int -> IO String
 run f day = day
@@ -20,6 +22,7 @@ run f day = day
   & (++) "resources/day"
   & readFile
   & fmap (f . lines)
+
 
 daySteps :: [( [String] -> String, [String] -> String )]
 daySteps = [( Day1.step1, Day1.step2 ),
@@ -32,11 +35,14 @@ daySteps = [( Day1.step1, Day1.step2 ),
             ( Day8.step1, Day8.step2 ),
             ( Day9.step1, Day9.step2 ),
             ( Day10.step1, Day10.step2 ),
-            ( Day11.step1, Day11.step2 )]
+            ( Day11.step1, Day11.step2 ),
+            ( Day12.step1, Day12.step2 )]
+
 
 dayStep :: [String] -> ( Int, Int )
 dayStep (day:step:_) =
   ( (read day) - 1, (read step) - 1 )
+
 
 runner :: ( Int, Int ) -> IO String
 runner ( day, step ) = 
@@ -46,6 +52,7 @@ runner ( day, step ) =
       & head
   in
     run (if step == 0 then f1 else f2) (day + 1)
+
 
 main :: IO ()
 main = fmap dayStep getArgs >>= runner >>= putStrLn
